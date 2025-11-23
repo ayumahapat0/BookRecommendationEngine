@@ -52,6 +52,16 @@ class BookDataLoader:
         """
         self.filepath = filepath
         self.data = None
+    
+    def load_data_normal(self) -> pd.DataFrame:
+        """
+        Load the dataset with no memory optimization
+
+        Returns: 
+            DataFrame with loaded data
+        """
+        data = pd.read_csv(self.filepath)
+        return data
 
     def load_data(self) -> pd.DataFrame:
         """
@@ -74,6 +84,7 @@ class BookDataLoader:
         )
 
         return self.data
+    
 
     def preprocess_data(self) -> pd.DataFrame:
         """

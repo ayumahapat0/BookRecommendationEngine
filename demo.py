@@ -58,6 +58,27 @@ def demonstrate_data_loading():
 
     return books_df
 
+def demonstrate_memory_optimization():
+    """
+        Demonstrate how much memory optimizations is done using dtype optimizations
+    """
+    loader = BookDataLoader("books.csv")
+    
+    data_normal = loader.load_data_normal()
+    data_dtype_opt = loader.load_data()
+
+    memory_before = data_normal.memory_usage(deep=True).sum() / 1024 ** 2
+    memory_after = data_dtype_opt.memory_usage(deep=True).sum() / 1024 ** 2
+
+    improvement = ((memory_before - memory_after) / memory_before) * 100
+
+    print("Memory Usage Before Dtype Optimizations")
+    print("Before:")
+    print(f"Total Memory Used: {memory_before:2f} MB\n")
+    print("After:")
+    print(f"Total Memory Used: {memory_after:2f} MB\n")
+    print(f"Percentage Improvement: {improvement:2f}%\n")
+
 
 def demonstrate_content_based(engine: BookRecommendationEngine):
     """
@@ -238,6 +259,9 @@ def main():
 
     # Part 1: Data Loading
     books_df = demonstrate_data_loading()
+
+    print_section("DEMONSTRATING EFFECT OF DTYPE OPTIMIZATIONS")
+    demonstrate_memory_optimization()
 
     # Build recommendation engine
     print_section("BUILDING RECOMMENDATION ENGINE")
