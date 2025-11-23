@@ -125,6 +125,9 @@ class BookDataLoader:
         # Think about Week 10: What's an efficient way to compute this?
         self.data['popularity_score'] = self._calculate_popularity()
 
+        # Drop rows that have the same reviews
+        self.data = self.data.drop_duplicates(subset=['book_title', 'author', 'popularity_score'])
+
         return self.data
 
     def _parse_genres(self, genre_str: str) -> List[str]:

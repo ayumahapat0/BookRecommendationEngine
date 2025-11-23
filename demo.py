@@ -58,6 +58,18 @@ def demonstrate_data_loading():
 
     return books_df
 
+def get_unique_genres(genres):
+    """
+    Get all the unqiue genres from the dataset
+
+    Args: 
+        genre = list of genres associated with each novel
+    Returns:
+        res = list of all the unique genres 
+    """
+    res = [x for genre in genres for x in genre]
+    return res
+
 def demonstrate_memory_optimization():
     """
         Demonstrate how much memory optimizations is done using dtype optimizations
@@ -89,7 +101,6 @@ def demonstrate_content_based(engine: BookRecommendationEngine):
     print_section("PART 2: CONTENT-BASED RECOMMENDATIONS")
 
     test_books = [
-        "Harry Potter and the Half-Blood Prince",
         "1984",
         "The Great Gatsby"
     ]
@@ -114,7 +125,7 @@ def demonstrate_content_based(engine: BookRecommendationEngine):
             print(f"❌ Book not found in dataset")
 
 
-def demonstrate_popularity(engine: BookRecommendationEngine):
+def demonstrate_popularity(engine: BookRecommendationEngine, genre):
     """
     Demonstrate popularity-based recommendations.
 
@@ -122,22 +133,20 @@ def demonstrate_popularity(engine: BookRecommendationEngine):
     """
     print_section("PART 3: POPULARITY-BASED RECOMMENDATIONS")
 
-    print("\n📈 Top 5 Most Popular Books Overall:")
+    print(f"\n📈 Top 5 Most Popular Books in Genres: {genre}")
     print("-" * 80)
 
     # TODO: Get popularity recommendations
-    # Note: You'll need to modify this to call the PopularityRecommender directly
-    # or add a method to BookRecommendationEngine to support this
+    
+    # For Popularity Recommendations, we don't need a title 
+    test_book = ""
+    start_time = time.time()
+    popular_books = engine.get_recommendations(test_book, strategy='popularity', genre=genre, n=5)
+    elapsed = time.time() - start_time
 
-    # For now, let's show a workaround using the dataframe
-    popular_books = engine.books_df.nlargest(5, 'popularity_score')
-
-    for i, (_, book) in enumerate(popular_books.iterrows(), 1):
-        print(f"\n{i}. {book['book_title']}")
-        print(f"   Author: {book['author']}")
-        print(f"   Rating: {book['average_rating']:.2f} ⭐")
-        print(f"   Ratings: {book['num_ratings']:,}")
-        print(f"   Popularity Score: {book['popularity_score']:.4f}")
+    if popular_books:
+        engine.display_recommendations(popular_books)
+        print(f"\n⏱️  Recommendation time: {elapsed:.4f} seconds")
 
 
 def demonstrate_hybrid(engine: BookRecommendationEngine):
@@ -181,7 +190,7 @@ def compare_strategies(engine: BookRecommendationEngine):
     print(f"\n📊 Comparing recommendation strategies for: '{test_book}'")
     print("=" * 80)
 
-    strategies = ['content', 'hybrid']
+    strategies = ['content','popularity', 'hybrid']
     results = {}
 
     for strategy in strategies:
@@ -202,10 +211,12 @@ def compare_strategies(engine: BookRecommendationEngine):
         else:
             print("❌ No recommendations found")
 
+
     # TODO: Analyze differences
     print("\n📝 Analysis:")
     print("-" * 80)
     print("Content-based focuses on similar features (genres, author, etc.)")
+    print("Popularity-based focuses solely on popularity score, not on anything else")
     print("Hybrid balances similarity with overall popularity")
     print("\nNotice how the recommendations and scores differ between strategies!")
 
@@ -259,6 +270,9 @@ def main():
 
     # Part 1: Data Loading
     books_df = demonstrate_data_loading()
+    genres = books_df['genres'].tolist()
+
+    unique_genres = get_unique_genres(genres)
 
     print_section("DEMONSTRATING EFFECT OF DTYPE OPTIMIZATIONS")
     demonstrate_memory_optimization()
@@ -276,7 +290,7 @@ def main():
 
     # Part 2-5: Different recommendation strategies
     demonstrate_content_based(engine)
-    demonstrate_popularity(engine)
+    demonstrate_popularity(engine, unique_genres[0])
     demonstrate_hybrid(engine)
     compare_strategies(engine)
 

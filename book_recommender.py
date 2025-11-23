@@ -30,6 +30,20 @@ class RecommendationStrategy:
             List of tuples: (book_id, title, score)
         """
         raise NotImplementedError("Subclasses must implement recommend()")
+    
+    def recommend(self, genre: str, n: int = 5) -> List[Tuple[int, str, float]]:
+        """
+        Generates recommendations for books based on popularity score
+
+        Args:
+            genre: optional filter to find popularity within genre
+            n: NUmber of recommendations to return
+        
+        Returns:
+            List of tuples: (book_id, book_title, popularity_score)   
+        """
+        raise NotImplementedError("Subclasses must implement recommend()")
+
 
 
 class ContentBasedRecommender(RecommendationStrategy):
@@ -123,9 +137,7 @@ class ContentBasedRecommender(RecommendationStrategy):
         """
         # TODO: Find book index
         try:
-            # print("Finding index for book_id:", book_id)
             idx = self.books_df[self.books_df['book_id'] == book_id].index[0]
-            # print("Found index:", idx)
         except IndexError:
             return []
 
@@ -294,7 +306,8 @@ class BookRecommendationEngine:
 
     def get_recommendations(self,
                             book_title: str,
-                            strategy: str = 'hybrid',
+                            strategy: str = 'hybrid', 
+                            genre: str = None,
                             n: int = 5) -> List[Tuple[int, str, float]]:
         """
         Get book recommendations.
@@ -302,6 +315,7 @@ class BookRecommendationEngine:
         Args:
             book_title: Title of book to base recommendations on
             strategy: 'content', 'popularity', or 'hybrid'
+            genre: genre of book to filter for popularity recommendations
             n: Number of recommendations
 
         Returns:
@@ -316,19 +330,19 @@ class BookRecommendationEngine:
             print(f"Book '{book_title}' not found")
             return []
         
-        # print("Matches found:")
-        # print(matches)
-        # print()
 
         book_id = matches.iloc[0]['book_id']
 
-        # print(f"Index: {book_id}\n")
 
         # TODO: Get recommendations using selected strategy
         if strategy not in self.strategies:
             raise ValueError(f"Unknown strategy: {strategy}")
-
-        return self.strategies[strategy].recommend(book_id, n)
+        
+        # Popuular Strategy doesn't used book titles, only finds books based on popularity score, with optional genre filter
+        if strategy == 'popularity':
+            return self.strategies[strategy].recommend(genre, n)
+        else:
+            return self.strategies[strategy].recommend(book_id, n)
 
     def display_recommendations(self, recommendations: List[Tuple[int, str, float]]):
         """
