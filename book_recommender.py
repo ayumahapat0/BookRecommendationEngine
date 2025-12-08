@@ -4,10 +4,10 @@ Book Recommendation Engine
 
 import pandas as pd
 import numpy as np
-from typing import List, Dict, Tuple, Callable
-from functools import reduce
+from typing import List, Tuple
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MultiLabelBinarizer
+import time
 
 
 class RecommendationStrategy:
@@ -101,7 +101,10 @@ class ContentBasedRecommender(RecommendationStrategy):
 
         # TODO: Compute similarity matrix
         # Week 10: This is computationally expensive - how can we optimize?
+        start = time.time()
         self._compute_similarity_matrix()
+        end = time.time()
+        print(f"Cosine Matrix takes {end - start}s time create")
 
     def _compute_similarity_matrix(self):
         """

@@ -187,10 +187,8 @@ class BookDataLoader:
         Returns:
             Series of popularity scores
         """
-        # TODO: Implement popularity calculation
-        # Example approach: normalized_ratings * average_rating
-        # Normalize num_ratings to 0-1 scale first
 
+        # Normalize num_ratings to 0-1 scale first
         max_ratings = self.data['num_ratings'].max()
         normalized_ratings = self.data['num_ratings'] / max_ratings
 

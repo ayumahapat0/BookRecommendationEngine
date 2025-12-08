@@ -3,7 +3,6 @@ Demo Script for Book Recommendation Engine
 """
 
 import time
-import pandas as pd
 from data_loader import BookDataLoader
 from book_recommender import BookRecommendationEngine
 
