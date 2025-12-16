@@ -115,7 +115,7 @@ class BookDataLoader:
 
         # Fill missing pages with median
         median_pages = self.data['num_pages'].median()
-        self.data['num_pages'].fillna(median_pages, inplace=True)
+        self.data['num_pages'] = self.data['num_pages'].fillna(median_pages)
 
         self.data['popularity_score'] = self._calculate_popularity()
 

@@ -7,7 +7,6 @@ import numpy as np
 from typing import List, Tuple
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MultiLabelBinarizer
-import time
 
 
 class RecommendationStrategy:
@@ -52,8 +51,6 @@ class ContentBasedRecommender(RecommendationStrategy):
     - Genre similarity
     - Author matching
     - Other book features
-
-    Week 10: Use vectorized operations for efficiency!
     """
 
     def __init__(self, books_df: pd.DataFrame):
@@ -72,8 +69,6 @@ class ContentBasedRecommender(RecommendationStrategy):
         Prepare feature vectors for similarity computation.
         - One-hot encode genres (use MultiLabelBinarizer)
         - Consider author, page count, ratings
-
-        Week 10 concept: Vectorization for efficiency
         """
 
         mlb = MultiLabelBinarizer()
@@ -92,10 +87,7 @@ class ContentBasedRecommender(RecommendationStrategy):
             normalized_rating.values.reshape(-1, 1)
         ])
 
-        start = time.time()
         self._compute_similarity_matrix()
-        end = time.time()
-        print(f"Cosine Matrix takes {end - start}s time create")
 
     def _compute_similarity_matrix(self):
         """
