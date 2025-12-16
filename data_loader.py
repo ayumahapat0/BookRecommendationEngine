@@ -128,6 +128,8 @@ class BookDataLoader:
         # Drop rows that have the same reviews
         self.data = self.data.drop_duplicates(subset=['book_title', 'author', 'popularity_score'])
 
+        print("data has been loaded and preprocessed successfully!")
+
         return self.data
 
     def _parse_genres(self, genre_str: str) -> List[str]:
