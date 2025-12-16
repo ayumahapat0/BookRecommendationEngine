@@ -18,14 +18,12 @@ def demonstrate_data_loading():
     """
     Demonstrate efficient data loading with memory optimization.
 
-    TODO:
     1. Load data twice - once with all columns, once with optimized columns
     2. Compare memory usage
     3. Show the impact of dtype optimization
     """
     print_section("PART 1: EFFICIENT DATA LOADING")
 
-    # TODO: Load data with optimization
     print("\n📥 Loading data with optimized columns and dtypes...")
     start_time = time.time()
 
@@ -37,7 +35,6 @@ def demonstrate_data_loading():
     print(f"✅ Data loaded in {load_time:.2f} seconds")
     print(f"📊 Dataset shape: {books_df.shape}")
 
-    # TODO: Show memory usage
     print("\n💾 Memory Usage Analysis:")
     memory_info = loader.get_memory_usage()
     print(f"Total memory: {memory_info['total_memory_mb']:.2f} MB")
@@ -47,27 +44,14 @@ def demonstrate_data_loading():
         if isinstance(mem, float):
             print(f"  {col:20s}: {mem:.2f} MB")
 
-    # TODO: Show data types
     print("\n📋 Optimized Data Types:")
     print(books_df.dtypes)
 
-    # TODO: Show sample data
     print("\n👀 Sample Data (first 3 rows):")
     print(books_df.head(3)[['book_title', 'author', 'average_rating', 'num_ratings']])
 
     return books_df
 
-def get_unique_genres(genres):
-    """
-    Get all the unqiue genres from the dataset
-
-    Args: 
-        genre = list of genres associated with each novel
-    Returns:
-        res = list of all the unique genres 
-    """
-    res = [x for genre in genres for x in genre]
-    return res
 
 def demonstrate_memory_optimization():
     """
@@ -94,8 +78,6 @@ def demonstrate_memory_optimization():
 def demonstrate_content_based(engine: BookRecommendationEngine):
     """
     Demonstrate content-based recommendations.
-
-    TODO: Test with multiple books and show results
     """
     print_section("PART 2: CONTENT-BASED RECOMMENDATIONS")
 
@@ -108,7 +90,6 @@ def demonstrate_content_based(engine: BookRecommendationEngine):
         print(f"\n🔍 Finding books similar to: '{book_title}'")
         print("-" * 80)
 
-        # TODO: Get content-based recommendations
         start_time = time.time()
         recommendations = engine.get_recommendations(
             book_title,
@@ -118,7 +99,7 @@ def demonstrate_content_based(engine: BookRecommendationEngine):
         elapsed = time.time() - start_time
 
         if recommendations:
-            engine.display_recommendations(recommendations)
+            print(engine.display_recommendations(recommendations))
             print(f"\n⏱️  Recommendation time: {elapsed:.4f} seconds")
         else:
             print(f"❌ Book not found in dataset")
@@ -127,15 +108,11 @@ def demonstrate_content_based(engine: BookRecommendationEngine):
 def demonstrate_popularity(engine: BookRecommendationEngine, genre):
     """
     Demonstrate popularity-based recommendations.
-
-    TODO: Show top popular books overall and by genre
     """
     print_section("PART 3: POPULARITY-BASED RECOMMENDATIONS")
 
     print(f"\n📈 Top 5 Most Popular Books in Genres: {genre}")
     print("-" * 80)
-
-    # TODO: Get popularity recommendations
     
     # For Popularity Recommendations, we don't need a title 
     test_book = ""
@@ -144,15 +121,13 @@ def demonstrate_popularity(engine: BookRecommendationEngine, genre):
     elapsed = time.time() - start_time
 
     if popular_books:
-        engine.display_recommendations(popular_books)
+        print(engine.display_recommendations(popular_books))
         print(f"\n⏱️  Recommendation time: {elapsed:.4f} seconds")
 
 
 def demonstrate_hybrid(engine: BookRecommendationEngine):
     """
     Demonstrate hybrid recommendations.
-
-    TODO: Show how hybrid combines content and popularity
     """
     print_section("PART 4: HYBRID RECOMMENDATIONS")
 
@@ -162,7 +137,6 @@ def demonstrate_hybrid(engine: BookRecommendationEngine):
     print("(Combining content similarity + popularity)")
     print("-" * 80)
 
-    # TODO: Get hybrid recommendations
     start_time = time.time()
     recommendations = engine.get_recommendations(
         test_book,
@@ -172,15 +146,13 @@ def demonstrate_hybrid(engine: BookRecommendationEngine):
     elapsed = time.time() - start_time
 
     if recommendations:
-        engine.display_recommendations(recommendations)
+        print(engine.display_recommendations(recommendations))
         print(f"\n⏱️  Recommendation time: {elapsed:.4f} seconds")
 
 
 def compare_strategies(engine: BookRecommendationEngine):
     """
     Compare all three recommendation strategies side by side.
-
-    TODO: Show how different strategies produce different results
     """
     print_section("PART 5: STRATEGY COMPARISON")
 
@@ -211,7 +183,6 @@ def compare_strategies(engine: BookRecommendationEngine):
             print("❌ No recommendations found")
 
 
-    # TODO: Analyze differences
     print("\n📝 Analysis:")
     print("-" * 80)
     print("Content-based focuses on similar features (genres, author, etc.)")
@@ -223,8 +194,6 @@ def compare_strategies(engine: BookRecommendationEngine):
 def performance_analysis(engine: BookRecommendationEngine):
     """
     Analyze performance characteristics of the recommendation engine.
-
-    TODO: Time multiple operations and analyze scalability
     """
     print_section("PART 6: PERFORMANCE ANALYSIS")
 
@@ -259,8 +228,6 @@ def performance_analysis(engine: BookRecommendationEngine):
 def main():
     """
     Main demonstration script.
-
-    TODO: Complete all demonstration sections
     """
     print("\n" + "🎬" * 40)
     print("  BOOK RECOMMENDATION ENGINE DEMONSTRATION")
@@ -271,7 +238,7 @@ def main():
     books_df = demonstrate_data_loading()
     genres = books_df['genres'].tolist()
 
-    unique_genres = get_unique_genres(genres)
+    unique_genres = BookDataLoader.get_unique_genres(genres)
 
     print_section("DEMONSTRATING EFFECT OF DTYPE OPTIMIZATIONS")
     demonstrate_memory_optimization()

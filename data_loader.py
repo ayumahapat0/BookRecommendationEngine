@@ -18,8 +18,6 @@ class BookDataLoader:
     - Chunked processing (optional for very large datasets)
     """
 
-    # TODO: Define the columns you want to load
-    # Hint: You don't need ALL columns. Think about what's essential for recommendations!
     COLUMNS_TO_LOAD = [
         'book_id',
         'book_title',
@@ -31,8 +29,6 @@ class BookDataLoader:
         'num_pages'
     ]
 
-    # TODO: Specify optimal dtypes for memory efficiency
-    # Hint: Consider the range of values and whether you need float64 or if float32 suffices
     DTYPE_SPECIFICATION = {
         'book_id': 'int32',  # IDs don't need int64
         'book_title': 'string',  # Use pandas string type
@@ -67,16 +63,10 @@ class BookDataLoader:
         """
         Load the dataset with optimal memory usage.
 
-        TODO: Implement efficient data loading
-        - Use usecols to load only necessary columns
-        - Specify dtypes to reduce memory usage
-        - Handle the index column properly
-
         Returns:
             DataFrame with loaded data
         """
-        # TODO: Load data efficiently
-        # Hint: Use pd.read_csv with usecols and dtype parameters
+
         self.data = pd.read_csv(
             self.filepath,
             usecols=self.COLUMNS_TO_LOAD,
@@ -84,13 +74,25 @@ class BookDataLoader:
         )
 
         return self.data
+
+    def get_unique_genres(genres):
+        """
+        Get all the unqiue genres from the dataset
+
+        Args: 
+            genre = list of genres associated with each novel
+        Returns:
+            res = list of all the unique genres 
+        """
+        res = [x for genre in genres for x in genre]
+        res = list(set(res))
+        return res
     
 
     def preprocess_data(self) -> pd.DataFrame:
         """
         Clean and preprocess the loaded data.
 
-        TODO: Implement preprocessing steps
         1. Parse the 'genres' column (it's a string representation of a list)
         2. Parse the 'num_pages' column (also a list, take the first element)
         3. Handle missing values appropriately
@@ -102,15 +104,10 @@ class BookDataLoader:
         if self.data is None:
             raise ValueError("Data not loaded. Call load_data() first.")
 
-        # TODO: Parse genres from string to list
-        # Hint: Use ast.literal_eval() to safely evaluate string representations of lists
         self.data['genres'] = self.data['genres'].apply(self._parse_genres)
 
-        # TODO: Parse num_pages and convert to integer
         self.data['num_pages'] = self.data['num_pages'].apply(self._parse_pages)
 
-        # TODO: Handle missing values
-        # Consider: Should you drop rows or fill with defaults?
         self.data = self.data.dropna(subset=['book_title', 'author', 'average_rating'])
 
         # Fill missing genres with empty list
@@ -120,9 +117,6 @@ class BookDataLoader:
         median_pages = self.data['num_pages'].median()
         self.data['num_pages'].fillna(median_pages, inplace=True)
 
-        # TODO: Create a 'popularity_score' feature
-        # Hint: Combine num_ratings and average_rating in a meaningful way
-        # Think about Week 10: What's an efficient way to compute this?
         self.data['popularity_score'] = self._calculate_popularity()
 
         # Drop rows that have the same reviews
@@ -136,7 +130,6 @@ class BookDataLoader:
         """
         Parse genres from string representation to list.
 
-        TODO: Implement genre parsing
         Handle cases where the string might be malformed or empty
 
         Args:
@@ -146,7 +139,6 @@ class BookDataLoader:
             List of genres
         """
         try:
-            # TODO: Safely parse the string
             genres = ast.literal_eval(genre_str)
             return genres if isinstance(genres, list) else []
         except (ValueError, SyntaxError):
@@ -156,9 +148,6 @@ class BookDataLoader:
         """
         Parse number of pages from string representation.
 
-        TODO: Implement page number parsing
-        The format is like "['652']" - extract the number
-
         Args:
             pages_str: String representation of pages list
 
@@ -166,7 +155,6 @@ class BookDataLoader:
             Number of pages as float (or np.nan if invalid)
         """
         try:
-            # TODO: Parse and convert to integer
             pages_list = ast.literal_eval(pages_str)
             if isinstance(pages_list, list) and len(pages_list) > 0:
                 if pages_list[0] == None:
@@ -180,11 +168,6 @@ class BookDataLoader:
     def _calculate_popularity(self) -> pd.Series:
         """
         Calculate a popularity score for each book.
-
-        TODO: Design a popularity metric
-        Consider both the number of ratings and the average rating
-
-        Week 10 concept: Use vectorized operations for efficiency!
 
         Returns:
             Series of popularity scores

@@ -48,9 +48,7 @@ class RecommendationStrategy:
 
 class ContentBasedRecommender(RecommendationStrategy):
     """
-    Content-based recommendation using book features.
-
-    TODO: Implement content-based filtering using:
+    Content-based recommendation using book features using:
     - Genre similarity
     - Author matching
     - Other book features
@@ -72,20 +70,15 @@ class ContentBasedRecommender(RecommendationStrategy):
     def _prepare_features(self):
         """
         Prepare feature vectors for similarity computation.
-
-        TODO: Create feature vectors from book metadata
         - One-hot encode genres (use MultiLabelBinarizer)
         - Consider author, page count, ratings
 
         Week 10 concept: Vectorization for efficiency
         """
-        # TODO: Create genre feature matrix
-        # Hint: Use MultiLabelBinarizer to convert list of genres to binary matrix
+
         mlb = MultiLabelBinarizer()
         genre_features = mlb.fit_transform(self.books_df['genres'])
 
-        # TODO: Add normalized numerical features
-        # Normalize page count and ratings to 0-1 scale
         normalized_pages = (
                 self.books_df['num_pages'] / self.books_df['num_pages'].max()
         )
@@ -99,8 +92,6 @@ class ContentBasedRecommender(RecommendationStrategy):
             normalized_rating.values.reshape(-1, 1)
         ])
 
-        # TODO: Compute similarity matrix
-        # Week 10: This is computationally expensive - how can we optimize?
         start = time.time()
         self._compute_similarity_matrix()
         end = time.time()
@@ -109,27 +100,15 @@ class ContentBasedRecommender(RecommendationStrategy):
     def _compute_similarity_matrix(self):
         """
         Compute pairwise similarity between all books.
-
-        TODO: Use cosine similarity efficiently
-
-        Week 10 concept: This operation is O(n²) - consider:
         - Using scipy/sklearn optimized implementations
         - For very large datasets, computing on-demand might be better
-
-        Week 11 bonus: Could this be parallelized?
         """
-        # TODO: Compute cosine similarity matrix
-        # Hint: sklearn.metrics.pairwise.cosine_similarity is optimized
+
         self.similarity_matrix = cosine_similarity(self.feature_matrix)
 
     def recommend(self, book_id: int, n: int = 5) -> List[Tuple[int, str, float]]:
         """
         Recommend books similar to the given book.
-
-        TODO: Implement the recommendation logic
-        1. Find the book's index in the dataframe
-        2. Get similarity scores for all books
-        3. Sort and return top N (excluding the input book)
 
         Args:
             book_id: ID of the book to base recommendations on
@@ -138,20 +117,17 @@ class ContentBasedRecommender(RecommendationStrategy):
         Returns:
             List of (book_id, title, similarity_score)
         """
-        # TODO: Find book index
+
         try:
             idx = self.books_df[self.books_df['book_id'] == book_id].index[0]
         except IndexError:
             return []
 
-        # TODO: Get similarity scores
+
         sim_scores = self.similarity_matrix[idx]
 
-        # TODO: Get indices of top N similar books (excluding self)
-        # Week 10: Use NumPy's argsort for efficiency
         similar_indices = np.argsort(sim_scores)[::-1][1:n + 1]
 
-        # TODO: Build result list
         recommendations = []
         for idx in similar_indices:
             book_row = self.books_df.iloc[idx]
@@ -178,8 +154,6 @@ class PopularityRecommender(RecommendationStrategy):
         """
         Recommend top books by popularity.
 
-        TODO: Implement popularity-based recommendations
-
         Args:
             genre: Optional genre filter
             n: Number of recommendations
@@ -189,12 +163,9 @@ class PopularityRecommender(RecommendationStrategy):
         """
         df = self.books_df.copy()
 
-        # TODO: Filter by genre if specified
         if genre:
             df = df[df['genres'].apply(lambda x: genre in x)]
 
-        # TODO: Sort by popularity and return top N
-        # Week 6/10: Use pandas efficiently
         top_books = df.nlargest(n, 'popularity_score')
 
         recommendations = []
@@ -210,9 +181,7 @@ class PopularityRecommender(RecommendationStrategy):
 
 class HybridRecommender(RecommendationStrategy):
     """
-    Combines multiple recommendation strategies.
-
-    TODO: Implement a hybrid approach that combines:
+    Combines multiple recommendation strategies:
     - Content-based similarity
     - Popularity
 
@@ -240,11 +209,6 @@ class HybridRecommender(RecommendationStrategy):
         """
         Generate hybrid recommendations.
 
-        TODO: Combine content-based and popularity scores
-
-        Week 7 concept: Think about functional composition
-        Week 10 concept: Efficient score combination
-
         Args:
             book_id: Book to base recommendations on
             n: Number of recommendations
@@ -252,19 +216,15 @@ class HybridRecommender(RecommendationStrategy):
         Returns:
             List of (book_id, title, combined_score)
         """
-        # TODO: Get content-based recommendations
         content_recs = self.content_recommender.recommend(book_id, n * 3)
 
-        # TODO: Create a score dictionary for efficient lookup
         content_scores = {book_id: score for book_id, _, score in content_recs}
 
-        # TODO: Normalize popularity scores for the candidate books
         candidate_ids = [book_id for book_id, _, _ in content_recs]
         candidate_books = self.books_df[self.books_df['book_id'].isin(candidate_ids)]
 
         max_pop = candidate_books['popularity_score'].max()
 
-        # TODO: Combine scores
         combined_scores = []
         for _, row in candidate_books.iterrows():
             book_id = row['book_id']
@@ -281,7 +241,6 @@ class HybridRecommender(RecommendationStrategy):
                 combined
             ))
 
-        # TODO: Sort by combined score and return top N
         combined_scores.sort(key=lambda x: x[2], reverse=True)
         return combined_scores[:n]
 
@@ -324,7 +283,11 @@ class BookRecommendationEngine:
         Returns:
             List of recommended books with scores
         """
-        # TODO: Find book by title
+        # Popuular Strategy doesn't used book titles, only finds books based on popularity score, with optional genre filter
+        if strategy == 'popularity':
+            return self.strategies[strategy].recommend(genre, n)
+        
+        # Find book by title
         matches = self.books_df[
             self.books_df['book_title'].str.contains(book_title, case=False, na=False)
         ]
@@ -336,14 +299,8 @@ class BookRecommendationEngine:
 
         book_id = matches.iloc[0]['book_id']
 
-
-        # TODO: Get recommendations using selected strategy
         if strategy not in self.strategies:
             raise ValueError(f"Unknown strategy: {strategy}")
-        
-        # Popuular Strategy doesn't used book titles, only finds books based on popularity score, with optional genre filter
-        if strategy == 'popularity':
-            return self.strategies[strategy].recommend(genre, n)
         else:
             return self.strategies[strategy].recommend(book_id, n)
 
@@ -354,21 +311,19 @@ class BookRecommendationEngine:
         Args:
             recommendations: List of (book_id, title, score) tuples
         """
-        print("\n" + "=" * 80)
-        print("RECOMMENDATIONS")
-        print("=" * 80)
+        res = ""
 
         for i, (book_id, title, score) in enumerate(recommendations, 1):
             # Get book details
             book = self.books_df[self.books_df['book_id'] == book_id].iloc[0]
 
-            print(f"\n{i}. {title}")
-            print(f"   Author: {book['author']}")
-            print(f"   Rating: {book['average_rating']:.2f} ⭐ ({book['num_ratings']:,} ratings)")
-            print(f"   Genres: {', '.join(book['genres'][:3])}")
-            print(f"   Match Score: {score:.3f}")
+            res += f"{i}. {title}"
+            res += f"   Author: {book['author']}"
+            res += f"   Rating: {book['average_rating']:.2f} ⭐ ({book['num_ratings']:,} ratings)"
+            res += f"   Genres: {', '.join(book['genres'][:3])}"
+            res += f"   Match Score: {score:.3f}\n\n"
 
-        print("\n" + "=" * 80)
+        return res
 
 
 # Example usage
